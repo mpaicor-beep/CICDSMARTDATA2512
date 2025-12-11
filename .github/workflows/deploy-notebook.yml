@@ -20,8 +20,8 @@ jobs:
       run: |
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
-        NOTEBOOK_BASE="/Workspace/Users/mini36513@outlook.com/CICDSMARTDATA2512/seguridad"
-        NOTEBOOKS=("Grants-Medallion")  # Agrega más según necesitesas
+        NOTEBOOK_BASE="/Workspace/Users/mini36513@outlook.com/CICDSMARTDATA2512/proceso"
+        NOTEBOOKS=("Ingest_consumos_data" "Ingest_proyectos_data" "Load_data" "Transform_data")  # Agrega más según necesitesas
 
         mkdir -p notebooks_to_deploy
 
