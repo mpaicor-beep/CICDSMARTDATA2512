@@ -37,7 +37,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/seguridad"
+        DEST_BASE="/proceso"
 
         for file in notebooks_to_deploy/*.py; do
           name=$(basename "$file" .py)
