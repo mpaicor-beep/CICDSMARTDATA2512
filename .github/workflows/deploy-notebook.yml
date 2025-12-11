@@ -17,8 +17,8 @@ jobs:
       run: |
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
-        NOTEBOOK_BASE="/Workspace/Users/mini36513@outlook.com/source_ntbk"
-        NOTEBOOKS=("ntbk_1" "ntbk_2")  # Agrega más según necesitesas
+        NOTEBOOK_BASE="/Workspace/Users/mini36513@outlook.com/ETL_2"
+        NOTEBOOKS=("Ingest_circuits_data" "Ingest_racing_data" "Load" "Preparacion_Ambiente" "Transform")  # Agrega más según necesitesas
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
@@ -32,7 +32,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/py/scripts/main"
+        DEST_BASE="/proyecto_smartdata/"
         for file in notebooks_to_deploy/*.py; do
           name=$(basename "$file" .py)
           dest_path="$DEST_BASE/$name"
@@ -127,29 +127,102 @@ jobs:
           "format": "MULTI_TASK",
           "tasks": [
             {
-              "task_key": "tarea1_notebook1",
-              "description": "Ejecuta notebook ntbk_1",
+              "task_key": "Preparacion_Ambiente",
+              "description": "Ejecuta Preparacion Ambiente",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/ntbk_1",
-                "source": "WORKSPACE"
+                "notebook_path": "/proyecto_smartdata/Preparacion_Ambiente",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "storageLocation": "storage"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2
             },
             {
-              "task_key": "tarea2_notebook2",
-              "description": "Ejecuta notebook ntbk_2",
+              "task_key": "Ingest_circuits_data",
+              "description": "Ingest_circuits_data",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/ntbk_2",
-                "source": "WORKSPACE"
+                "notebook_path": "/proyecto_smartdata/Ingest_circuits_data",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "storage_name": "adlssmartdata202512",
+                  "container": "raw",
+                  "catalogo": "catalog_dev",
+                  "esquema": "bronze"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2,
               "depends_on": [
                 {
-                  "task_key": "tarea1_notebook1"
+                  "task_key": "Preparacion_Ambiente"
+                }
+              ]
+            },
+            {
+              "task_key": "Ingest_racing_data",
+              "description": "Ingest_racing_data",
+              "notebook_task": {
+                "notebook_path": "/proyecto_smartdata/Ingest_racing_data",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "storage_name": "adlssmartdata202512",
+                  "container": "raw",
+                  "catalogo": "catalog_dev",
+                  "esquema": "bronze"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Ingest_circuits_data"
+                }
+              ]
+            },
+            {
+              "task_key": "Transform",
+              "description": "Transform",
+              "notebook_task": {
+                "notebook_path": "/proyecto_smartdata/Transform",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_dev",
+                  "esquema_source": "bronze",
+                  "esquema_sink": "silver"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Ingest_racing_data"
+                }
+              ]
+            },
+            {
+              "task_key": "Load",
+              "description": "Load",
+              "notebook_task": {
+                "notebook_path": "/proyecto_smartdata/Load",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_dev",
+                  "esquema_source": "silver",
+                  "esquema_sink": "golden"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Transform"
                 }
               ]
             }
@@ -170,7 +243,7 @@ jobs:
           "tags": {
             "environment": "production",
             "created_by": "github_actions",
-            "project": "automated_deployment",
+            "project": "project_smartdata",
             "cluster_used": "cluster_SD"
           }
         }
