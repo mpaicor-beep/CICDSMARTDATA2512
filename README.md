@@ -301,7 +301,7 @@ Workflow: Deploy Gestión de Costos de Pytos
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mpaicor-beep)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:mpaicor@gmail.com)
 
-**Data Engineering** | **Azure Databricks** | **Delta Lake** | **CI/CD**
+**Data Governance** | **Data Engineering** | **Azure Databricks** | **Delta Lake** | **CI/CD**
 
 </div>
 
